@@ -1,9 +1,7 @@
 package com.matrangola.gadgets.data.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @Table(name = "customer")
@@ -12,8 +10,12 @@ public class Customer {
     @GeneratedValue
     private Long id;
 
+    @Column
     private String firstName;
+    @Column
     private String lastName;
+    @Column
+    private Date birthday;
 
     public Long getId() {
         return id;
@@ -33,5 +35,13 @@ public class Customer {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public Date getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(Date birthday) {
+        this.birthday = birthday;
     }
 }
