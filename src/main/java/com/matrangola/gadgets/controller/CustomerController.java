@@ -16,11 +16,21 @@ import java.util.stream.Collectors;
 @RequestMapping(value = "/customers", produces = {"application/json"})
 public class CustomerController {
     private static final SimpleDateFormat BIRTHDAY_TEXT_FORMAT = new SimpleDateFormat("yyyyMMdd");
-
     @Autowired
     private CustomerService customerService;
 
-    @RequestMapping(path = "/new", method = RequestMethod.GET)
+    @RequestMapping(path = "/", method = RequestMethod.GET)
+    public List<Customer> getAll() {
+        return customerService.getCustomers();
+    }
+
+    @RequestMapping(path="/{id}", method = RequestMethod.GET)
+    public Customer getById(@PathVariable Long id) {
+        Customer customer = customerService.getCustomer(id);
+        return customer;
+    }
+
+    @RequestMapping(path = "/new", method = RequestMethod.POST)
     public Customer add(
             @RequestParam String firstName,
             @RequestParam String lastName,
@@ -51,6 +61,12 @@ public class CustomerController {
 
         return customers.stream().filter(customer ->
                 customer.getBirthday().before(old.getTime())).collect(Collectors.toList());
+    }
+
+    // This is just for example
+    @RequestMapping(path={"/foo", "/foo/bar", "*.bar", "dove/*,**/data"})
+    public String foo() {
+        return "foo mapping success";
     }
 
 }
