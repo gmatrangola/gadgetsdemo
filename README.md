@@ -578,3 +578,210 @@ public class CustomerControllerTest extends ControllerTest {
     }
 }
 ```
+# Demo 8a: Change Date Format
+
+1. Add @JsonFormat to Customer.birthday
+2. Retest with testGetCustomer
+
+## Customer.java
+
+```java
+@Entity
+@Table(name = "customer")
+public class Customer {
+    @Id
+    @GeneratedValue
+    private Long id;
+    @Column
+    private String firstName;
+    @Column
+    private String lastName;
+    @Column
+    @JsonFormat(pattern = "MM-dd-yyyy")
+    private Date birthday;
+    // ...
+```
+
+Now `testAddWithJSON` fails because
+
+```java
+ Date bday = new Date();
+ String jday = json(bday).replace("\"", "");
+```
+
+## CustomerControllerTest.java
+
+```java
+// ...
+    @Test
+    public void testAddWithJSON() throws Exception {
+        Date bday = new Date();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(bday);
+        String jday = (cal.get(Calendar.MONTH)+1 )+ "-" + (cal.get(Calendar.DAY_OF_MONTH)+1) + "-" +
+                cal.get(Calendar.YEAR);
+        mockMvc.perform(put("/customers/add")
+                .content(json(new Customer("first", "last", bday)))
+                .contentType(JSON_CONTENT_TYPE))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(JSON_CONTENT_TYPE))
+                .andExpect(jsonPath("$.firstName", is("first")))
+                .andExpect(jsonPath("$.lastName", is("last")))
+                .andExpect(jsonPath("$.birthday", is(jday)));
+    }
+// ...
+```
+
+# Demo 8b: Relatioinships in JSON
+
+1. Create Gadget Model Class
+2. Setup JPA Relation to Customer
+
+## Gadget.java
+
+```java
+@Entity
+@Table(name = "gadget")
+public class Gadget {
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    @Column
+    private String name;
+
+    @Column(name = "isOn")
+    private boolean on;
+
+    @ManyToOne
+    @JoinColumn(name = "owner_id", nullable = true)
+    private Customer owner;
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public boolean isOn() {
+        return on;
+    }
+
+    public void setOn(boolean on) {
+        this.on = on;
+    }
+
+    public Customer getOwner() {
+        return owner;
+    }
+
+    public void setOwner(Customer owner) {
+        this.owner = owner;
+    }
+}
+```
+
+## Customer.java
+
+```java
+@Entity
+@Table(name = "customer")
+public class Customer {
+    @Id
+    @GeneratedValue
+    private Long id;
+    @Column
+    private String firstName;
+    @Column
+    private String lastName;
+    @Column
+    @JsonFormat(pattern = "MM-dd-yyyy")
+    private Date birthday;
+    @OneToMany(mappedBy = "owner", cascade = ALL, fetch = FetchType.EAGER)
+    private Set<Gadget> gadgets;
+// ...
+```
+
+## GadgetService.java
+
+```java
+@RestController
+@RequestMapping(value = "/gadgets", produces = {"application/json"})
+public class GadgetController {
+
+    @Autowired
+    GadgetRepository gadgetRepository;
+
+    @Autowired
+    CustomerRepository customerRepository;
+
+    @RequestMapping
+    public List<Gadget> get() {
+        return gadgetRepository.findAll();
+    }
+
+    @RequestMapping("/{id}")
+    public Gadget getById(@PathVariable("id") Long id) {
+        return gadgetRepository.findById(id).get();
+    }
+
+    @RequestMapping(path = "/add", method = RequestMethod.PUT)
+    public Gadget add(@RequestBody Gadget gadget) {
+        return gadgetRepository.save(gadget);
+    }
+
+    @RequestMapping(path = "/assignUser", method = RequestMethod.GET)
+    public void assignUser(@RequestParam Long gadgetId, @RequestParam Long customerId) {
+        Optional<Customer> customer = customerRepository.findById(customerId);
+        Optional<Gadget> gadget = gadgetRepository.findById(gadgetId);
+        if (customer.isPresent()) {
+            if (gadget.isPresent()) {
+                gadget.get().setOwner(customer.get());
+                gadgetRepository.save(gadget.get());
+            }
+        }
+    }
+}
+```
+
+## Gadget.http
+
+```
+PUT http://127.0.0.1:8080/customers/add
+Content-Type: application/json
+
+{
+  "firstName": "Alice",
+  "lastName": "Merton",
+  "birthday": "1993-09-13"
+}
+
+###
+
+PUT http://127.0.0.1:8080/gadgets/add
+Content-Type: application/json
+
+{
+  "name": "light",
+  "on": "true"
+}
+
+###
+
+GET http://127.0.0.1:8080/gadgets/assignUser?gadgetId=2&customerId=1
+
+###
+
+# Check IDs in database first
+GET http://127.0.0.1:8080/gadgets/2
+
+###
+```
+
+#

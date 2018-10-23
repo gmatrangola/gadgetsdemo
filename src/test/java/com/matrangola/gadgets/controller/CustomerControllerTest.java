@@ -14,6 +14,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -57,7 +58,8 @@ public class CustomerControllerTest extends ControllerTest {
     @Test
     public void testAddWithJson() throws Exception {
         Date bday = new Date();
-        String jdate = json(bday).replace("\"","");
+        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy");
+        String jdate = sdf.format(bday);
         mockMvc.perform(put("/customers/add")
                 .content(json(new Customer("first", "last", bday)))
                 .contentType(JSON_CONTENT_TYPE))

@@ -1,7 +1,12 @@
 package com.matrangola.gadgets.data.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import javax.persistence.*;
 import java.util.Date;
+import java.util.Set;
+
+import static javax.persistence.CascadeType.ALL;
 
 @Entity
 @Table(name = "customer")
@@ -15,7 +20,11 @@ public class Customer {
     @Column
     private String lastName;
     @Column
+    @JsonFormat(pattern = "MM-dd-yyyy")
     private Date birthday;
+
+    @OneToMany(mappedBy = "owner", cascade = ALL, fetch = FetchType.EAGER)
+    private Set<Gadget> gadgets;
 
     public Customer() {
 
@@ -57,5 +66,9 @@ public class Customer {
 
     public void setBirthday(Date birthday) {
         this.birthday = birthday;
+    }
+
+    public Set<Gadget> getGadgets() {
+        return gadgets;
     }
 }
