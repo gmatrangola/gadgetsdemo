@@ -27,6 +27,13 @@ public class GadgetController {
         return gadgetRepository.findAll();
     }
 
+    @RequestMapping(path = "/{id}")
+    public Gadget get(@PathVariable Long id) {
+        Optional<Gadget> gadget = gadgetRepository.findById(id);
+        if (gadget.isPresent()) return gadget.get();
+        else return null;
+    }
+
     @RequestMapping(path = "/add", method = RequestMethod.PUT)
     public Gadget add(@RequestBody Gadget gadget) {
         return gadgetRepository.save(gadget);

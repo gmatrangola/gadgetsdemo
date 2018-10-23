@@ -26,10 +26,14 @@ Content-Type: application/json
 
 ###
 
-POST http://127.0.0.1:8080/gadgets/4/user?customerId=3
+POST http://127.0.0.1:8080/gadgets/2/user?customerId=1
 
 ###
 
 GET http://127.0.0.1:8080/gadgets/2
+
+###
+
+GET http://localhost:8080/customers/1
 
 ###

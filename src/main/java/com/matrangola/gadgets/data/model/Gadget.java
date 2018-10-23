@@ -1,9 +1,14 @@
 package com.matrangola.gadgets.data.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import javax.persistence.*;
 
 @Entity
 @Table(name = "gadget")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Gadget {
     @Id
     @GeneratedValue
@@ -17,6 +22,7 @@ public class Gadget {
 
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = true)
+    @JsonIdentityReference(alwaysAsId = true)
     private Customer owner;
 
     public Long getId() {

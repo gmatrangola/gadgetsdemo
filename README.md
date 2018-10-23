@@ -784,4 +784,52 @@ GET http://127.0.0.1:8080/gadgets/2
 ###
 ```
 
-#
+# Demo 8d: Fix Recursion
+
+## Gadget.java
+
+```java
+@Entity
+@Table(name = "gadget")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,  property = "id")
+public class Gadget {
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    @Column
+    private String name;
+
+    @Column(name = "isOn")
+    private boolean on;
+
+    @ManyToOne
+    @JoinColumn(name = "owner_id", nullable = true)
+    @JsonIdentityReference(alwaysAsId = true)
+    private Customer owner;
+    // ...
+```
+
+## Customer.java
+
+```java
+@Entity
+@Table(name = "customer")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,  property = "id")
+public class Customer {
+    @Id
+    @GeneratedValue
+    private Long id;
+    @Column
+    private String firstName;
+    @Column
+    private String lastName;
+    @Column
+    @JsonFormat(pattern = "MM-dd-yyyy")
+    private Date birthday;
+    @OneToMany(mappedBy = "owner", cascade = ALL, fetch = FetchType.EAGER)
+    @JsonIdentityReference(alwaysAsId = true)
+    private Set<Gadget> gadgets;
+//...
+```
+
