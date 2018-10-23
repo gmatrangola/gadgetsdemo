@@ -413,3 +413,64 @@ public class CustomerController {
     // ...
 ```
 
+# Demo 6: Unit Tests
+
+1. Use IDE to automatically create JUnit for Customer class
+2. Create convenience constructor
+3. Create a Before condition to set up a cal and customer field for test data
+4. Fill in each of the getters and setters with asserts etc.
+
+## CustomerTest.java
+
+```java
+public class CustomerTest {
+
+    private Customer customer;
+    private Calendar cal;
+
+    @Before
+    public void setUp() throws Exception {
+        cal = Calendar.getInstance();
+        cal.set(1999, Calendar.OCTOBER, 28);
+        customer = new Customer("test", "user", cal.getTime());
+    }
+
+    @Test
+    public void getFirstName() {
+        assertEquals("test", customer.getFirstName());
+    }
+
+    @Test
+    public void setFirstName() {
+        Customer fn = new Customer();
+        fn.setFirstName("first");
+        assertEquals("first", fn.getFirstName());
+    }
+
+    @Test
+    public void getLastName() {
+        assertEquals("user", customer.getLastName());
+    }
+
+    @Test
+    public void setLastName() {
+        Customer ln = new Customer();
+        ln.setLastName("last");
+        assertEquals("last", ln.getLastName());
+    }
+
+    @Test
+    public void getBirthday() {
+        assertEquals(cal.getTime(), customer.getBirthday());
+    }
+
+    @Test
+    public void setBirthday() {
+        Date date = new Date();
+        Customer bd = new Customer();
+        bd.setBirthday(date);
+        assertEquals(date, bd.getBirthday());
+    }
+}
+```
+

@@ -17,6 +17,20 @@ public class Customer {
     @Column
     private Date birthday;
 
+    public Customer() {
+
+    }
+
+    public Customer(String first, String last) {
+        firstName = first;
+        lastName = last;
+    }
+
+    public Customer(String first, String last, Date birthday) {
+        this(first, last);
+        this.birthday = birthday;
+    }
+
     public Long getId() {
         return id;
     }
