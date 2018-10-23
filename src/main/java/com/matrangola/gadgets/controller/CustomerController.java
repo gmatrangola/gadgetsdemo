@@ -16,8 +16,13 @@ import java.util.stream.Collectors;
 @RequestMapping(value = "/customers", produces = {"application/json"})
 public class CustomerController {
     private static final SimpleDateFormat BIRTHDAY_TEXT_FORMAT = new SimpleDateFormat("yyyyMMdd");
-    @Autowired
+
     private CustomerService customerService;
+
+    @Autowired
+    public CustomerController(CustomerService customerService) {
+        this.customerService = customerService;
+    }
 
     @RequestMapping(path = "/", method = RequestMethod.GET)
     public List<Customer> getAll() {
