@@ -474,3 +474,107 @@ public class CustomerTest {
 }
 ```
 
+# Demo 7: Rest Testing Part 1
+
+1. Handy reusable base class for controller tests
+
+## ControllerTest.java
+
+```java
+import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
+
+public abstract class ControllerTest {
+    protected static final MediaType JSON_CONTENT_TYPE = new MediaType(MediaType.APPLICATION_JSON.getType(),
+            MediaType.APPLICATION_JSON.getSubtype(),
+            Charset.forName("utf8"));
+    protected MockMvc mockMvc;
+    @Autowired
+    protected WebApplicationContext webApplicationContext;
+    private HttpMessageConverter mappingJackson2HttpMessageConverter;
+
+    @Autowired
+    void setConverters(HttpMessageConverter<?>[] converters) {
+
+        mappingJackson2HttpMessageConverter = Arrays.stream(converters)
+                .filter(hmc -> hmc instanceof MappingJackson2HttpMessageConverter)
+                .findAny()
+                .orElse(null);
+
+        assertNotNull("the JSON message converter must not be null",this.mappingJackson2HttpMessageConverter);
+    }
+
+    protected String json(Object o) throws IOException {
+        MockHttpOutputMessage mockHttpOutputMessage = new MockHttpOutputMessage();
+        this.mappingJackson2HttpMessageConverter.write(o, MediaType.APPLICATION_JSON, mockHttpOutputMessage);
+        return mockHttpOutputMessage.getBodyAsString();
+    }
+
+    protected void setup() {
+        mockMvc = webAppContextSetup(webApplicationContext).build();
+    }
+}
+
+```
+
+1. Create a CustomerControllerTest Class in the test classpath in the same package as the real CustomerController.
+2. Annotate with test annotations @RunWith, @SpringBootTest, @WebApplicationContext
+3. Create a JSON_CONTENT_TYPE MediaType to be used later
+4. Autowire the WebApplicationContext
+5. Wire up the CustomerRepository to prep for tests.
+6. Add test data using the repository in the setup() method
+7. Create a setup (annotated with @Before) and initialize the mockMvc
+8. Create tests for REST entry points using mockMvc
+9. Notice that testAddWithJSON() fails
+
+## CustomerControllerTest
+
+```java
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = GadgetsApplication.class)
+@WebAppConfiguration
+public class CustomerControllerTest extends ControllerTest {
+    protected static final MediaType JSON_CONTENT_TYPE = new MediaType(MediaType.APPLICATION_JSON.getType(),
+            MediaType.APPLICATION_JSON.getSubtype(),
+            Charset.forName("utf8"));
+
+    private MockMvc mockMvc;
+
+    @Autowired
+    protected CustomerRepository customerRepository;
+    private Customer customer1;
+    private Customer customer2;
+
+    @Before
+    public void setup() {
+        mockMvc = webAppContextSetup(webApplicationContext).build();
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(1990, Calendar.JUNE, 28, 1, 0, 0);
+        calendar.setTimeZone(TimeZone.getDefault());
+        Date bday = new Date(calendar.getTimeInMillis());
+        customer1 = customerRepository.save(new Customer("First1", "Last1", bday));
+        customer2 = customerRepository.save(new Customer("First2", "Last2", bday));
+    }
+
+    @Test
+    public void testGetCustomer() throws Exception {
+        mockMvc.perform(get("/customers/" + customer1.getId()).contentType(JSON_CONTENT_TYPE))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(JSON_CONTENT_TYPE))
+                .andExpect(content().json(json(customer1)));
+    }
+
+    @Test
+    public void testAddWithJSON() throws Exception {
+        Date bday = new Date();
+        String jday = json(bday).replace("\"", "");
+        mockMvc.perform(put("/customers/add")
+                .content(json(new Customer("first", "last", bday)))
+                .contentType(JSON_CONTENT_TYPE))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(JSON_CONTENT_TYPE))
+                .andExpect(jsonPath("$.firstName", is("first")))
+                .andExpect(jsonPath("$.lastName", is("last")))
+                .andExpect(jsonPath("$.birthday", is(jday)));
+    }
+}
+```
