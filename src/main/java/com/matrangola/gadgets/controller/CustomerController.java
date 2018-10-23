@@ -57,6 +57,12 @@ public class CustomerController {
         return customer;
     }
 
+    @RequestMapping(path = "/add", method = RequestMethod.PUT)
+    public Customer add(@RequestBody Customer customer) {
+        customerService.addCustomer(customer);
+        return customer;
+    }
+
     @RequestMapping(path = "/older/{age}", method = RequestMethod.GET)
     public List<Customer> older(@PathVariable int age) {
         List<Customer> customers = customerService.getCustomers();
