@@ -25,6 +25,10 @@ public class Gadget {
     @JsonIdentityReference(alwaysAsId = true)
     private Customer owner;
 
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name="color_id", nullable = true)
+    private Color color;
+
     public Long getId() {
         return id;
     }
@@ -51,5 +55,13 @@ public class Gadget {
 
     public void setOwner(Customer owner) {
         this.owner = owner;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
+    }
+
+    public Color getColor() {
+        return color;
     }
 }

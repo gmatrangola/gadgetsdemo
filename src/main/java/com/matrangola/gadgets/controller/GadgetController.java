@@ -1,7 +1,9 @@
 package com.matrangola.gadgets.controller;
 
+import com.matrangola.gadgets.data.model.Color;
 import com.matrangola.gadgets.data.model.Customer;
 import com.matrangola.gadgets.data.model.Gadget;
+import com.matrangola.gadgets.data.repository.ColorRepository;
 import com.matrangola.gadgets.data.repository.GadgetRepository;
 import com.matrangola.gadgets.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,11 +16,14 @@ import java.util.Optional;
 @RequestMapping(value = "/gadgets", produces = {"application/json"})
 public class GadgetController {
     private GadgetRepository gadgetRepository;
+    private ColorRepository colorRepository;
     private CustomerService customerService;
 
     @Autowired
-    public GadgetController(GadgetRepository gadgetRepository, CustomerService customerService) {
+    public GadgetController(GadgetRepository gadgetRepository, ColorRepository colorRepository,
+                            CustomerService customerService) {
         this.gadgetRepository = gadgetRepository;
+        this.colorRepository = colorRepository;
         this.customerService = customerService;
     }
 
@@ -51,4 +56,15 @@ public class GadgetController {
             }
         }
     }
+
+    // PUT http://localhost:8080/123/color <-- json(Color)
+    @RequestMapping(path = "/{gadgetId}/color", method = RequestMethod.PUT)
+    public void assignColor(@PathVariable Long gadgetId, @RequestBody Color color) {
+        Optional<Gadget> gadget = gadgetRepository.findById(gadgetId);
+        if (gadget.isPresent()) {
+            colorRepository.save(color);
+            gadget.get().setColor(color);
+        }
+    }
+
 }

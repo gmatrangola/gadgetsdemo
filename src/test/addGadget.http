@@ -37,3 +37,18 @@ GET http://127.0.0.1:8080/gadgets/2
 GET http://localhost:8080/customers/1
 
 ###
+
+PUT http://127.0.0.1:8080/gadgets/add
+Content-Type: application/json
+
+{
+  "name": "Christmaslight",
+  "on": "true",
+  "color" : {
+    "red" : "0",
+    "green" : "255",
+    "blue" : "0"
+  }
+}
+
+###
