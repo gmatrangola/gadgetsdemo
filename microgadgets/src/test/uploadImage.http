@@ -1,0 +1,7 @@
+PUT http://localhost:8080/users/picture/123
+Accept: text/plain
+Content-Type: image/jpeg
+
+< /Users/geoff/Projects/DevelopIntelligence/Prep/gadgets/src/test/data/pippa.jpg
+
+###
