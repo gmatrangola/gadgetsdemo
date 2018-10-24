@@ -947,4 +947,14 @@ Content-Type: application/json
 }
 ```
 
-#
+# Demo 12: The Breakup
+
+1. After downloading and importing the template from the Initializer move the files from the GadgetsApp to the new MicroCustomer App.
+2. Customer.java
+3. Remove References to Gadgets in Customer.java
+4. Remove Reference to Customer in Gadget.java
+5. CustomerRepository.java
+6. CustomerService.java
+7. CustomerServiceImpl.java
+8. Copy the REST Annotations from CustomerController to the new MicroCustomerApplication Class
+9. Copy the @RequestMapping methods from CustomerController to MicroCustomerApplication Class
