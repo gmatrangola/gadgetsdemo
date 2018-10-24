@@ -1,5 +1,10 @@
 package com.matrangola.gadgets.data.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.matrangola.gadgets.data.seralizer.ColorDeserializer;
+import com.matrangola.gadgets.data.seralizer.ColorSerializer;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -7,6 +12,8 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "color")
+@JsonSerialize(using = ColorSerializer.class)
+@JsonDeserialize(using = ColorDeserializer.class)
 public class Color {
     @Id
     @GeneratedValue

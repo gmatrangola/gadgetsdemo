@@ -833,3 +833,118 @@ public class Customer {
 //...
 ```
 
+# Demo 9: Custom JSON
+
+1. Create Color Class with red, green, and blue fields in the model package
+2. Add ORM annotations for @Entitiy, @Table, @Id, etc
+3. Add color field to Gadget with @ManyToOne and @JoinColumn references
+4. Create ColorSeralizer and ColorDeseralizer classes
+5. Add `@JsonSerialize(using = ColorSeralizer.class) and @JsonDeserialize(using = ColorDeseralizer.class) annotations to Color`
+
+## Color.java
+
+```java
+@Entity
+@Table(name = "color")
+@JsonSerialize(using = ColorSeralizer.class)
+@JsonDeserialize(using = ColorDeserializer.class)
+public class Color {
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    private int red;
+    private int green;
+    private int blue;
+
+    public Long getId() {
+        return id;
+    }
+
+    public int getRed() {
+        return red;
+    }
+
+    public void setRed(int red) {
+        this.red = red;
+    }
+// ...
+```
+
+## Gadget.java
+
+```java
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name="color_id", nullable = true)
+    private Color color;
+```
+
+### Test without custom serializer
+
+## ColorGadget.http
+
+```json
+PUT http://127.0.0.1:8080/gadgets/add
+Content-Type: application/json
+
+{
+  "name": "Christmaslight",
+  "on": "true",
+  "color" : {
+    "red" : "0",
+    "green" : "255",
+    "blue" : "0"
+  }
+}
+
+###
+```
+
+### data.serialization package
+
+## ColorSerializer.java
+
+```java
+public class ColorSerializer extends JsonSerializer<Color> {
+    @Override
+    public void serialize(Color value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+        gen.writeStartObject();
+        gen.writeStringField("rgb", String.format("%02X%02X%02X", value.getRed(), value.getGreen(), value.getBlue()));
+        gen.writeEndObject();
+    }
+}
+```
+
+## ColorDeserializer.java
+
+```java
+public class ColorDeserializer extends JsonDeserializer<Color> {
+    @Override
+    public Color deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+        JsonNode node = p.getCodec().readTree(p);
+        String rgb = node.get("rgb").textValue();
+        Color color = new Color();
+        color.setRed(Integer.valueOf(rgb.substring(0,2), 16));
+        color.setGreen(Integer.valueOf(rgb.substring(2,4), 16));
+        color.setBlue(Integer.valueOf(rgb.substring(4,6), 16));
+        return color;
+    }
+}
+```
+
+### Test with new Serializer
+
+## RgbGadget.http
+
+```json
+PUT http://127.0.0.1:8080/gadgets/add
+Content-Type: application/json
+
+{
+  "name": "Christmaslight",
+  "on": "true",
+  "color" : { "rgb": "00FF00"}
+}
+```
+
+#
