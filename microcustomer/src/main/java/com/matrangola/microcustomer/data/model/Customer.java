@@ -22,6 +22,8 @@ public class Customer {
     @Column
     private String lastName;
     @Column
+    private String email;
+    @Column
     @JsonFormat(pattern = "MM-dd-yyyy")
     private Date birthday;
 
@@ -57,6 +59,14 @@ public class Customer {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public Date getBirthday() {

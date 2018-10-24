@@ -958,3 +958,170 @@ Content-Type: application/json
 7. CustomerServiceImpl.java
 8. Copy the REST Annotations from CustomerController to the new MicroCustomerApplication Class
 9. Copy the @RequestMapping methods from CustomerController to MicroCustomerApplication Class
+
+# Demo 13: Making Yourself Available
+
+```java
+@SpringBootApplication
+@EnableEurekaServer
+public class NamingServerApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(NamingServerApplication.class, args);
+	}
+}
+```
+
+http://localhost:8761
+
+## gadgets & microcustomer build.gradle
+
+```groovy
+ext {
+	springCloudVersion = 'Finchley.SR1'
+}
+
+dependencies {
+	implementation('org.springframework.boot:spring-boot-starter-web')
+	implementation('org.springframework.boot:spring-boot-starter-actuator')
+	implementation('org.springframework.boot:spring-boot-devtools')
+	implementation('org.springframework.boot:spring-boot-starter-data-jpa')
+	implementation('org.springframework.boot:spring-boot-starter-aop')
+	implementation('org.springframework.cloud:spring-cloud-starter-netflix-eureka-client')
+	implementation('org.springframework.cloud:spring-cloud-starter-netflix-ribbon')
+
+	implementation('mysql:mysql-connector-java')
+	testImplementation('org.springframework.boot:spring-boot-starter-test')
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
+}
+```
+
+## gadgets & microcustomer application.properites
+
+```
+spring.application.name=___
+server.port=81XX
+eureka.client.service-url.default-zone=http://localhost:8761/eureka
+eureka.instance.preferIpAddress=true
+
+```
+
+# Demo 14: Talking Again
+
+## microcustomer Customer.java
+
+```java
+//...
+public class Customer {
+//...
+    @Column
+    private String email;
+//...
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+//...
+```
+
+## microcustomer MicrocustomerApplication.java
+
+```java
+    @RequestMapping(path= "/emailById/{id}", method = RequestMethod.GET)
+    public String emailById(@PathVariable("id") Long id) throws Exception {
+        Customer customer= customerService.getCustomer(id);
+        return customer.getEmail();
+    }
+```
+
+## microcustomer data.sql
+
+```sql
+INSERT INTO CUSTOMER (id, first_name, last_name, email) VALUES
+	(1, 'Geoff', 'Matrangola', 'geoff@example.com'),
+	(2, 'Tom', 'Smith', 'tomsmith@example.com'),
+	(3, 'Lyle', 'Lovett', 'lylelovett@example.com'),
+	(4, 'Phil', 'Collins', 'ssudio@example.com'),
+	(5, 'Taylor', 'Swift', 'tswift@example.com');
+
+```
+
+## microcustomer applicaton.properties
+
+```
+spring.jpa.hibernate.ddl-auto=create
+spring.datasource.url=jdbc:mysql://localhost:3306/customer
+spring.datasource.username=db
+spring.datasource.password=spring
+spring.datasource.initialization-mode=always
+spring.application.name=microcustomer
+server.port=8110
+eureka.client.service-url.default-zone=http://localhost:8761/eureka
+eureka.instance.preferIpAddress=true
+```
+
+## gadgets/build.gradle
+
+```groovy
+	implementation('org.springframework.cloud:spring-cloud-starter-netflix-eureka-client')
+	implementation('org.springframework.cloud:spring-cloud-starter-netflix-ribbon')
+	implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-feign', version: '1.4.6.RELEASE'
+
+```
+
+## gadgets CustomerClient
+
+```java
+@Component
+@FeignClient("microcustomer")
+public interface CustomerClient {
+    @RequestMapping(method = RequestMethod.GET, value = "/customers/emailById/{id}")
+    public String findEmailById(@PathVariable("id") Long id);
+
+}
+```
+
+## gadgets GadgetRepository
+
+```java
+public interface GadgetRepository extends JpaRepository<Gadget, Long> {
+    List<Gadget> findByName(String name);
+}
+```
+
+## gadgets GadgetController
+
+```java
+    @RequestMapping(path = "/emailWithGadget", method = RequestMethod.GET)
+    public List<String> emailWithGeget(@RequestParam String gadgetName) {
+        List<Gadget> gadgets = gadgetRepository.findByName(gadgetName);
+        List<String> names = new ArrayList<>();
+        for (Gadget gadget : gadgets) {
+            names.add(customerClient.findEmailById(gadget.getOwnerId()));
+        }
+
+        return names;
+    }
+```
+
+## gadgets data.sql
+
+```sql
+INSERT INTO gadget(id, name, is_on, owner_id) VALUES
+(1, 'switch', 1, 1),
+(2, 'switch', 0, 2),
+(3, 'switch', 0, 4);
+```
+
+## gadgets emailWithGadget.http
+
+GET http://127.0.0.1:8100/gadgets/emailWithGadget?gadgetName=switch

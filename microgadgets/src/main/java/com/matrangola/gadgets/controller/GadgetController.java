@@ -1,5 +1,6 @@
 package com.matrangola.gadgets.controller;
 
+import com.matrangola.gadgets.client.CustomerClient;
 import com.matrangola.gadgets.data.model.Color;
 import com.matrangola.gadgets.data.model.Gadget;
 import com.matrangola.gadgets.data.repository.ColorRepository;
@@ -7,17 +8,22 @@ import com.matrangola.gadgets.data.repository.GadgetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "/gadgets", produces = {"application/json"})
 public class GadgetController {
-    private GadgetRepository gadgetRepository;
-    private ColorRepository colorRepository;
+    private final CustomerClient customerClient;
+    private final GadgetRepository gadgetRepository;
+    private final ColorRepository colorRepository;
 
     @Autowired
-    public GadgetController(GadgetRepository gadgetRepository, ColorRepository colorRepository) {
+    public GadgetController(CustomerClient customerClient,
+                            GadgetRepository gadgetRepository,
+                            ColorRepository colorRepository) {
+        this.customerClient = customerClient;
         this.gadgetRepository = gadgetRepository;
         this.colorRepository = colorRepository;
     }
@@ -50,6 +56,16 @@ public class GadgetController {
 //                gadgetRepository.save(gadget.get());
 //            }
 //        }
+    }
+
+    @RequestMapping(path = "/emailWithGadget", method = RequestMethod.GET)
+    public List<String> emailWithGadget(@RequestParam String gadgetName) {
+        List<Gadget> gadgets = gadgetRepository.findByName(gadgetName);
+        List<String> emails = new ArrayList<>();
+        for (Gadget gadget : gadgets) {
+            emails.add(customerClient.findEmailById(gadget.getCustomerId()));
+        }
+        return emails;
     }
 
     // PUT http://localhost:8080/123/color <-- json(Color)

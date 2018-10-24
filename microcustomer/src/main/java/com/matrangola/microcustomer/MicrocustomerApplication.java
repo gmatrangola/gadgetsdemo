@@ -81,6 +81,12 @@ public class MicrocustomerApplication {
 				customer.getBirthday().before(old.getTime())).collect(Collectors.toList());
 	}
 
+	@RequestMapping(path = "/emailById/{id}", method = RequestMethod.GET)
+	public String emailById(@PathVariable("id") Long id) {
+		Customer customer = customerService.getCustomer(id);
+		return customer.getEmail();
+	}
+
 	// This is just for example
 	@RequestMapping(path={"/foo", "/foo/bar", "*.bar", "dove/*,**/data"})
 	public String foo() {
