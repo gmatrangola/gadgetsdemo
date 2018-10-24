@@ -1,3 +1,4 @@
 rootProject.name = 'gadgets'
 include 'microgadgets'
 include 'microcustomer'
+include 'naming-server'
