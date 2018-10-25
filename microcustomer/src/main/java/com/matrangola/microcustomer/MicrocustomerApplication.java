@@ -1,6 +1,7 @@
 package com.matrangola.microcustomer;
 
 import com.matrangola.microcustomer.data.model.Customer;
+import com.matrangola.microcustomer.exception.ResourceException;
 import com.matrangola.microcustomer.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -37,7 +38,7 @@ public class MicrocustomerApplication {
 	}
 
 	@RequestMapping(path="/{id}", method = RequestMethod.GET)
-	public Customer getById(@PathVariable Long id) {
+	public Customer getById(@PathVariable Long id) throws ResourceException {
 		Customer customer = customerService.getCustomer(id);
 		return customer;
 	}
@@ -82,7 +83,7 @@ public class MicrocustomerApplication {
 	}
 
 	@RequestMapping(path = "/emailById/{id}", method = RequestMethod.GET)
-	public String emailById(@PathVariable("id") Long id) {
+	public String emailById(@PathVariable("id") Long id) throws ResourceException {
 		Customer customer = customerService.getCustomer(id);
 		return customer.getEmail();
 	}

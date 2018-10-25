@@ -8,3 +8,7 @@
 GET http://localhost:8080/customers/
 
 ###
+
+GET http://localhost:8100/customers/100
+
+###

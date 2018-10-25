@@ -2,6 +2,7 @@ package com.matrangola.microcustomer.service;
 
 import com.matrangola.microcustomer.data.model.Customer;
 import com.matrangola.microcustomer.data.repository.CustomerRepository;
+import com.matrangola.microcustomer.exception.ResourceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,9 +31,9 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Customer getCustomer(Long id) {
+    public Customer getCustomer(Long id) throws ResourceException {
         Optional<Customer> customer = customerRepository.findById(id);
         if (customer.isPresent()) return customer.get();
-        else return null;
+        else throw new ResourceException(Customer.class, id);
     }
 }
