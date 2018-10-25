@@ -1,5 +1,6 @@
 package com.matrangola.gadgets.controller;
 
+import com.matrangola.gadgets.aop.Profiler;
 import com.matrangola.gadgets.client.CustomerClient;
 import com.matrangola.gadgets.data.model.Color;
 import com.matrangola.gadgets.data.model.Gadget;
@@ -28,11 +29,13 @@ public class GadgetController {
         this.colorRepository = colorRepository;
     }
 
+    @Profiler
     @RequestMapping
     public List<Gadget> get() {
         return gadgetRepository.findAll();
     }
 
+    @Profiler
     @RequestMapping(path = "/{id}")
     public Gadget get(@PathVariable Long id) {
         Optional<Gadget> gadget = gadgetRepository.findById(id);
@@ -40,6 +43,7 @@ public class GadgetController {
         else return null;
     }
 
+    @Profiler
     @RequestMapping(path = "/add", method = RequestMethod.PUT)
     public Gadget add(@RequestBody Gadget gadget) {
         return gadgetRepository.save(gadget);

@@ -5,7 +5,7 @@
 # * 'ptr' and 'ptrp' create a POST request with a simple or parameter-like body;
 # * 'mptr' and 'fptr' create a POST request to submit a form with a text or file field (multipart/form-data);
 
-PUT http://127.0.0.1:8080/customers/add
+PUT http://127.0.0.1:8110/customers/add
 Content-Type: application/json
 
 {
@@ -16,7 +16,7 @@ Content-Type: application/json
 
 ###
 
-PUT http://127.0.0.1:8080/gadgets/add
+PUT http://127.0.0.1:8110/gadgets/add
 Content-Type: application/json
 
 {
@@ -30,7 +30,7 @@ POST http://127.0.0.1:8080/gadgets/2/user?customerId=1
 
 ###
 
-GET http://127.0.0.1:8080/gadgets/2
+GET http://127.0.0.1:8110/gadgets/
 
 ###
 
@@ -38,7 +38,7 @@ GET http://localhost:8080/customers/1
 
 ###
 
-PUT http://127.0.0.1:8080/gadgets/add
+PUT http://127.0.0.1:8110/gadgets/add
 Content-Type: application/json
 
 {
