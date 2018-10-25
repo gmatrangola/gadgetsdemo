@@ -1,0 +1,6 @@
+POST http://localhost:8100/oauth/token?grant_type=password&username=gmatrangola&password=password
+Accept: application/json
+Authorization: Basic Y29ycDpzZWNyZXQ=
+
+###
+
